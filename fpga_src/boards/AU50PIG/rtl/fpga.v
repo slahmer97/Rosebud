@@ -57,7 +57,7 @@ module fpga (
      * Ethernet: QSFP28
      */
     input   wire [3:0] qsfp_rxp,
-    input    wire [3:0] qsfp_rxn,
+    input   wire [3:0] qsfp_rxn,
     output  wire [3:0] qsfp_txp,
     output  wire [3:0] qsfp_txn,
 
@@ -658,8 +658,10 @@ cmac_usplus_0
 qsfp0_cmac_inst (
     .gt_rxp_in(qsfp_rxp), // input
     .gt_rxn_in(qsfp_rxn), // input
+    
     .gt_txp_out(qsfp_txp), // output
-    .gt_txn_out(qsfp_rxn), // output
+    .gt_txn_out(qsfp_txn), // output
+    
     .gt_txusrclk2(qsfp0_txuserclk2), // output
     .gt_loopback_in(12'd0), // input [11:0]
     .gt_rxrecclkout(), // output [3:0]

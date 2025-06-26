@@ -132,7 +132,7 @@ module fpga_core #
 );
 
 
-parameter CORE_COUNT        = 8; // number of risc-v cores
+parameter CORE_COUNT        = 4; // number of risc-v cores
 
 parameter IF_COUNT          = 1; // qsfp_count
 parameter V_IF_COUNT        = 1;
@@ -1083,7 +1083,8 @@ lb_PR #(
   .CORE_COUNT  (CORE_COUNT),
   .SLOT_COUNT  (SLOT_COUNT),
   .LOOPBACK_PORT(FIRST_LPBK_PORT),
-  .LOOPBACK_COUNT(LPBK_PORT_COUNT)
+  .LOOPBACK_COUNT(LPBK_PORT_COUNT),
+  .CLUSTER_COUNT(CLUSTER_COUNT)
 )  lb_PR_inst (
   .clk(sys_clk),
   .rst(sys_rst_r),
