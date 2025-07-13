@@ -13,9 +13,6 @@ set_property BITSTREAM.CONFIG.SPI_32BIT_ADDR YES [current_design]
 set_operating_conditions -design_power_budget 63
 
 
-
-
-
 # LEDs
 set_property -dict {LOC E18 IOSTANDARD LVCMOS18 SLEW SLOW DRIVE 8} [get_ports qsfp_led_act]
 set_property -dict {LOC E16 IOSTANDARD LVCMOS18 SLEW SLOW DRIVE 8} [get_ports qsfp_led_stat_g]
@@ -68,13 +65,6 @@ set_property -dict {LOC A41 } [get_ports {qsfp_tx_n[3]}] ;# MGTYTXN3_131 GTYE4_C
 set_property -dict {LOC N36 } [get_ports qsfp_refclk_p]
 set_property -dict {LOC N37 } [get_ports qsfp_refclk_n]
 
-#set_property -dict {LOC M38 } [get_ports qsfp_mgt_refclk_1_p] ;# MGTREFCLK1P_131 from SI5394 OUT2
-#set_property -dict {LOC M39 } [get_ports qsfp_mgt_refclk_1_n] ;# MGTREFCLK1N_131 from SI5394 OUT2
-#set_property -dict {LOC F19 IOSTANDARD LVDS} [get_ports qsfp_recclk_p] ;# to SI5394 IN0
-#set_property -dict {LOC F18 IOSTANDARD LVDS} [get_ports qsfp_recclk_n] ;# to SI5394 IN0
-
-# 161.1328125 MHz MGT reference clock (SI5394 OUT0)
-#create_clock -period 6.206 -name qsfp_mgt_refclk_0 [get_ports qsfp_mgt_refclk_0_p]
 
 create_clock -period 6.206 -name qsfp_refclk [get_ports qsfp_refclk_p]
 
@@ -147,24 +137,14 @@ set_property -dict {LOC BE6 } [get_ports {pcie_rx_p[15]}] ;# MGTYRXP0_224 GTYE4_
 set_property -dict {LOC BE5 } [get_ports {pcie_rx_n[15]}] ;# MGTYRXN0_224 GTYE4_CHANNEL_X1Y0 / GTYE4_COMMON_X1Y0
 set_property -dict {LOC AT9 } [get_ports {pcie_tx_p[15]}] ;# MGTYTXP0_224 GTYE4_CHANNEL_X1Y0 / GTYE4_COMMON_X1Y0
 set_property -dict {LOC AT8 } [get_ports {pcie_tx_n[15]}] ;# MGTYTXN0_224 GTYE4_CHANNEL_X1Y0 / GTYE4_COMMON_X1Y0
-#set_property -dict {LOC AB9 } [get_ports pcie_refclk_0_p] ;# MGTREFCLK0P_227 (for x8 bifurcated lanes 0-7)
-#set_property -dict {LOC AB8 } [get_ports pcie_refclk_0_n] ;# MGTREFCLK0N_227 (for x8 bifurcated lanes 0-7)
 
-#set_property -dict {LOC AA11} [get_ports pcie_refclk_2_p] ;# MGTREFCLK1P_227 (for async x8 bifurcated lanes 0-7)
-#set_property -dict {LOC AA10} [get_ports pcie_refclk_2_n] ;# MGTREFCLK1N_227 (for async x8 bifurcated lanes 0-7)
-
-#set_property -dict {LOC AF9 } [get_ports pcie_refclk_1_p] ;# MGTREFCLK0P_225 (for x16 or x8 bifurcated lanes 8-16)
-#set_property -dict {LOC AF8 } [get_ports pcie_refclk_1_n] ;# MGTREFCLK0N_225 (for x16 or x8 bifurcated lanes 8-16)
 set_property -dict {LOC AF9 } [get_ports pcie_refclk_p]
 set_property -dict {LOC AF8 } [get_ports pcie_refclk_n]
 
-#set_property -dict {LOC AE11} [get_ports pcie_refclk_3_p] ;# MGTREFCLK1P_225 (for async x16 or x8 bifurcated lanes 8-16)
-#set_property -dict {LOC AE10} [get_ports pcie_refclk_3_n] ;# MGTREFCLK1N_225 (for async x16 or x8 bifurcated lanes 8-16)
 
 set_property -dict {LOC AW27 IOSTANDARD LVCMOS18 PULLUP true} [get_ports pcie_reset_n]
 
-# 100 MHz MGT reference clock
-#create_clock -period 10 -name pcie_mgt_refclk_1 [get_ports pcie_refclk_1_p]
+
 create_clock -period 10 -name pcie_refclk [get_ports pcie_refclk_p]
 set_false_path -from [get_ports {pcie_reset_n}]
 set_input_delay 0 [get_ports {pcie_reset_n}]

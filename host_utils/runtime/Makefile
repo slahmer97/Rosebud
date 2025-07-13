@@ -1,10 +1,8 @@
 # Test selection
 
-TEST=basic_fw
-# TEST=pkt_gen
+TEST=basic_corundum_tb
 DEST_DIR=../../riscv_code/
-# DEST_DIR=../accel/ip_matcher/c/
-PKT_SIZE=9000
+PKT_SIZE=1500
 
 # Corresponding input and output files
 PR_FILES=bitstreams
@@ -13,10 +11,10 @@ DATA_MAP_FILE=$(INS_BIN_FILE:%_ins.bin=%.map)
 OUT_FILE=$(TEST)_$(PKT_SIZE).csv
 
 # System and run parameters
-RPUS=16
+RPUS=4
 DEV=mqnic0
-ENABLE=0xffff
-RECV=0xffff
+ENABLE=0xf
+RECV=0xf
 DEBUG=8
 BLOCK_INTS=0
 

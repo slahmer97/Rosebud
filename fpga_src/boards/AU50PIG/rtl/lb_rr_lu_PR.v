@@ -81,9 +81,9 @@ module lb_PR (
   input  wire             host_cmd_wr_en
 );
 
-  parameter IF_COUNT        = 3;
-  parameter PORT_COUNT      = 5;
-  parameter CORE_COUNT      = 8;
+  parameter IF_COUNT        = 2;
+  parameter PORT_COUNT      = 4;
+  parameter CORE_COUNT      = 4;
   parameter SLOT_COUNT      = 32;
   parameter DATA_WIDTH      = 512;
   parameter CTRL_WIDTH      = 32+4;

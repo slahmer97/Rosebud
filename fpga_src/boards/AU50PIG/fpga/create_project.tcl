@@ -4,7 +4,7 @@ if { $argc != 1 } {
 }                                         
                                                
 set build_name [lindex $argv 0]        
-set build_path "/etinfo/users2/lahmer/rosebud50/fpga_src/boards/AU50PIG/build/$build_name" 
+set build_path "/etinfo/users2/lahmer/Rosebud/fpga_src/boards/AU50PIG/build/$build_name" 
                                                
 # Create the directory if it doesn't exist
 file mkdir $build_path                  

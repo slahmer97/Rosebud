@@ -1,7 +1,7 @@
 NAME=basic_fw
 
 # CPU options
-ARCH = rv32i
+ARCH = rv32i_zicsr
 ABI = ilp32
 
 # Toolchain options

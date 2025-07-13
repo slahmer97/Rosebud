@@ -1077,7 +1077,7 @@ wire                  lb_ctrl_s_axis_tvalid;
 wire                  lb_ctrl_s_axis_tready;
 wire [CORE_WIDTH-1:0] lb_ctrl_s_axis_tuser;
 
-lb_PR #(
+lb_PR/* #(
   .IF_COUNT    (LB_PORT_COUNT),  
   .PORT_COUNT  (PORT_COUNT),
   .CORE_COUNT  (CORE_COUNT),
@@ -1085,7 +1085,7 @@ lb_PR #(
   .LOOPBACK_PORT(FIRST_LPBK_PORT),
   .LOOPBACK_COUNT(LPBK_PORT_COUNT),
   .CLUSTER_COUNT(CLUSTER_COUNT)
-)  lb_PR_inst (
+)*/  lb_PR_inst (
   .clk(sys_clk),
   .rst(sys_rst_r),
 
