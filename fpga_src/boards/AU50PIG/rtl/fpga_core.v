@@ -270,30 +270,42 @@ wire [IF_COUNT-1:0] port_rx_axis_overflow_r;
 wire [IF_COUNT-1:0] port_rx_axis_bad_frame_r;
 wire [IF_COUNT*RX_LINES_WIDTH-1:0] port_rx_axis_line_count_r;
 
-if (QSFP0_IND >= 0 && QSFP0_IND < IF_COUNT) begin
-    assign port_tx_clk[QSFP0_IND] = qsfp0_tx_clk;
-    assign port_tx_rst[QSFP0_IND] = qsfp0_tx_rst;
-    assign qsfp0_tx_axis_tdata = port_tx_axis_tdata[QSFP0_IND*AXIS_ETH_DATA_WIDTH +: AXIS_ETH_DATA_WIDTH];
-    assign qsfp0_tx_axis_tkeep = port_tx_axis_tkeep[QSFP0_IND*AXIS_ETH_KEEP_WIDTH +: AXIS_ETH_KEEP_WIDTH];
-    assign qsfp0_tx_axis_tvalid = port_tx_axis_tvalid[QSFP0_IND];
-    assign port_tx_axis_tready[QSFP0_IND] = qsfp0_tx_axis_tready;
-    assign qsfp0_tx_axis_tlast = port_tx_axis_tlast[QSFP0_IND];
-    assign qsfp0_tx_axis_tuser = port_tx_axis_tuser[QSFP0_IND];
+assign port_tx_clk[QSFP0_IND] = qsfp0_tx_clk;
+assign port_tx_rst[QSFP0_IND] = qsfp0_tx_rst;
+assign qsfp0_tx_axis_tdata = port_tx_axis_tdata[QSFP0_IND*AXIS_ETH_DATA_WIDTH +: AXIS_ETH_DATA_WIDTH];
+assign qsfp0_tx_axis_tkeep = port_tx_axis_tkeep[QSFP0_IND*AXIS_ETH_KEEP_WIDTH +: AXIS_ETH_KEEP_WIDTH];
+assign qsfp0_tx_axis_tvalid = port_tx_axis_tvalid[QSFP0_IND];
+assign port_tx_axis_tready[QSFP0_IND] = qsfp0_tx_axis_tready;
+assign qsfp0_tx_axis_tlast = port_tx_axis_tlast[QSFP0_IND];
+assign qsfp0_tx_axis_tuser = port_tx_axis_tuser[QSFP0_IND];
 
-    assign port_rx_clk[QSFP0_IND] = qsfp0_rx_clk;
-    assign port_rx_rst[QSFP0_IND] = qsfp0_rx_rst;
-    assign port_rx_axis_tdata[QSFP0_IND*AXIS_ETH_DATA_WIDTH +: AXIS_ETH_DATA_WIDTH] = qsfp0_rx_axis_tdata;
-    assign port_rx_axis_tkeep[QSFP0_IND*AXIS_ETH_KEEP_WIDTH +: AXIS_ETH_KEEP_WIDTH] = qsfp0_rx_axis_tkeep;
-    assign port_rx_axis_tvalid[QSFP0_IND] = qsfp0_rx_axis_tvalid;
-    assign port_rx_axis_tlast[QSFP0_IND] = qsfp0_rx_axis_tlast;
-    assign port_rx_axis_tuser[QSFP0_IND] = qsfp0_rx_axis_tuser;
-end else begin
-    assign qsfp0_tx_axis_tdata = {AXIS_ETH_DATA_WIDTH{1'b0}};
-    assign qsfp0_tx_axis_tkeep = {AXIS_ETH_KEEP_WIDTH{1'b0}};
-    assign qsfp0_tx_axis_tvalid = 1'b0;
-    assign qsfp0_tx_axis_tlast = 1'b0;
-    assign qsfp0_tx_axis_tuser = 1'b0;
-end
+assign port_rx_clk[QSFP0_IND] = qsfp0_rx_clk;
+assign port_rx_rst[QSFP0_IND] = qsfp0_rx_rst;
+assign port_rx_axis_tdata[QSFP0_IND*AXIS_ETH_DATA_WIDTH +: AXIS_ETH_DATA_WIDTH] = qsfp0_rx_axis_tdata;
+assign port_rx_axis_tkeep[QSFP0_IND*AXIS_ETH_KEEP_WIDTH +: AXIS_ETH_KEEP_WIDTH] = qsfp0_rx_axis_tkeep;
+assign port_rx_axis_tvalid[QSFP0_IND] = qsfp0_rx_axis_tvalid;
+assign port_rx_axis_tlast[QSFP0_IND] = qsfp0_rx_axis_tlast;
+assign port_rx_axis_tuser[QSFP0_IND] = qsfp0_rx_axis_tuser;
+
+
+cmac_rx cmac_rx_inst (
+    .clk    (sys_clk),      // Clock for the ILA
+    .probe0 (1'b1),   // Valid
+    .probe1 (port_rx_axis_tvalid),     // Last
+    .probe2 (port_rx_axis_tlast),     // Last
+    .probe3 (port_rx_axis_tkeep[7:0]),    // Data[8:0]
+    .probe4 (port_rx_axis_tdata[7:0])    // Keep[8:0]
+);
+
+
+cmac_tx cmac_tx_inst (
+    .clk    (sys_clk),      // Clock for the ILA
+    .probe0 (qsfp0_tx_axis_tready),   // Valid
+    .probe1 (qsfp0_tx_axis_tvalid),     // Last
+    .probe2 (qsfp0_tx_axis_tlast),     // Last
+    .probe3 (qsfp0_tx_axis_tkeep[7:0]),    // Data[8:0]
+    .probe4 (qsfp0_tx_axis_tdata[7:0])    // Keep[8:0]
+);
 
 
 // Clock crossing for MAC
@@ -306,6 +318,7 @@ wire [LB_PORT_COUNT*LVL1_STRB_WIDTH-1:0] rx_axis_tkeep;
 wire [LB_PORT_COUNT-1:0] rx_axis_tvalid, rx_axis_tready, rx_axis_tlast;
 
 wire [LB_PORT_COUNT-1:0] rx_int_enable;
+
 
 (* KEEP = "TRUE" *) reg  [IF_COUNT-1:0] rx_drop, rx_drop_r;
 (* KEEP = "TRUE" *) reg  [IF_COUNT*RX_LINES_WIDTH-1:0] rx_line_count;
@@ -1077,7 +1090,8 @@ wire                  lb_ctrl_s_axis_tvalid;
 wire                  lb_ctrl_s_axis_tready;
 wire [CORE_WIDTH-1:0] lb_ctrl_s_axis_tuser;
 
-lb_PR /* #(
+lb_hash_PR
+ /* lb_PR#(
   .IF_COUNT    (LB_PORT_COUNT),  
    .CORE_COUNT  (CORE_COUNT),
   .SLOT_COUNT  (SLOT_COUNT),
@@ -1139,6 +1153,59 @@ lb_PR /* #(
   .host_cmd_rd_data (host_cmd_lb_rd_data),
   .host_cmd_wr_en   (host_cmd_lb_valid)
 );
+
+
+
+ila_rx_axis lb_intecon_0_rx (
+    .clk    (sys_clk),      // Clock for the ILA
+    .probe0 (rx_axis_tready[0]),   // Valid
+    .probe1 (rx_axis_tvalid[0]),     // Last
+    .probe2 (rx_axis_tlast[0]),     // Last
+    .probe3 (rx_axis_tkeep[LVL1_STRB_WIDTH*0 +: 8]),    // Data[8:0]
+    .probe4 (rx_axis_tdata[LVL1_DATA_WIDTH*0 +: 8]),    // Keep[8:0]
+    .probe5 (lb_tx_axis_tuser[PORT_WIDTH*0+:PORT_WIDTH]),
+    .probe6 (lb_rx_axis_tdest[ID_TAG_WIDTH*0+:ID_TAG_WIDTH])
+);
+
+
+ila_rx_axis lb_intecon_1_rx (
+    .clk    (sys_clk),      // Clock for the ILA
+    .probe0 (rx_axis_tready[1]),   // Valid
+    .probe1 (rx_axis_tvalid[1]),     // Last
+    .probe2 (rx_axis_tlast[1]),     // Last
+    .probe3 (rx_axis_tkeep[LVL1_STRB_WIDTH*1 +: 8]),    // Data[8:0]
+    .probe4 (rx_axis_tdata[LVL1_DATA_WIDTH*1 +: 8]),    // Keep[8:0]
+    .probe5 (lb_tx_axis_tuser[PORT_WIDTH*1+:PORT_WIDTH]),
+    .probe6 (lb_rx_axis_tdest[ID_TAG_WIDTH*1+:ID_TAG_WIDTH])
+
+);
+
+
+ila_tx_axis lb_intecon_0_tx (
+    .clk    (sys_clk),      // Clock for the ILA
+    .probe0 (tx_axis_tready[0]),   // Valid
+    .probe1 (port_rx_axis_tvalid),     // Last
+    .probe2 (port_rx_axis_tlast),     // Last
+    .probe3 (port_rx_axis_tkeep[LVL1_STRB_WIDTH*0 +: 8]),    // Data[8:0]
+    .probe4 (port_rx_axis_tdata[LVL1_DATA_WIDTH*0 +: 8]),    // Keep[8:0]
+    .probe5 (lb_tx_axis_tuser[ID_TAG_WIDTH*0+:ID_TAG_WIDTH])
+);
+
+
+ila_tx_axis lb_intecon_1_tx (
+    .clk    (sys_clk),      // Clock for the ILA
+    .probe0 (tx_axis_tready[1]),   // Valid
+    .probe1 (tx_axis_tvalid[1]),     // Last
+    .probe2 (tx_axis_tlast[1]),     // Last
+    .probe3 (tx_axis_tkeep[LVL1_STRB_WIDTH*1 +: 8]),    // Data[8:0]
+    .probe4 (tx_axis_tdata[LVL1_DATA_WIDTH*1 +: 8]),    // Keep[8:0]
+    .probe5 (lb_tx_axis_tuser[ID_TAG_WIDTH*1+:ID_TAG_WIDTH])
+
+);
+
+
+
+
 
 // Switches
 wire [CORE_COUNT*LVL2_DATA_WIDTH-1:0] data_s_axis_tdata;
@@ -1221,6 +1288,8 @@ axis_switch_2lvl # (
     .m_axis_tdest (data_s_axis_tdest),
     .m_axis_tuser (data_s_axis_tuser)
 );
+
+
 
 axis_switch_2lvl # (
     .S_COUNT         (CORE_COUNT),
@@ -1596,7 +1665,26 @@ generate
 
         wire [31:0]                rpu_status_data;
         wire [2:0]                 rpu_status_addr;
-
+        
+        rpu_s_axis rpu_s_axis_inst (
+            .clk    (core_clk),      // Clock for the ILA
+            .probe0 (data_s_axis_tready[i]),
+            .probe1 (data_s_axis_tvalid[i]),    
+            .probe2 (data_s_axis_tlast[i]),    
+            .probe3 (data_s_axis_tdest[TAG_WIDTH*i +: TAG_WIDTH]),   
+            .probe4 (data_s_axis_tuser[PORT_WIDTH*i +: PORT_WIDTH])
+        );
+        
+        rpu_m_axis rpu_m_axis_inst (
+            .clk    (core_clk),      // Clock for the ILA
+            .probe0 (data_m_axis_tready[i]),
+            .probe1 (data_m_axis_tvalid[i]),    
+            .probe2 (data_m_axis_tlast[i]),    
+            .probe3 (data_m_axis_tdest[PORT_WIDTH*i +: PORT_WIDTH]),   
+            .probe4 (data_m_axis_tuser[ID_TAG_WIDTH*i +: TAG_WIDTH])
+        );
+        
+        
         // (* keep_hierarchy = "soft" *)
         rpu_intercon #(
             .DATA_WIDTH(LVL2_DATA_WIDTH),

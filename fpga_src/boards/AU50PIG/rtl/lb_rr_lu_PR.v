@@ -83,11 +83,11 @@ module lb_PR (
 
   parameter IF_COUNT        = 2;
   parameter PORT_COUNT      = 4;
-  parameter CORE_COUNT      = 4;
+  parameter CORE_COUNT      = 8;
   parameter SLOT_COUNT      = 32;
   parameter DATA_WIDTH      = 512;
   parameter CTRL_WIDTH      = 32+4;
-  parameter LOOPBACK_PORT   = 3;
+  parameter LOOPBACK_PORT   = 2; // 1 + 1 + 1 - 1
   parameter LOOPBACK_COUNT  = 1;
   parameter CLUSTER_COUNT   = 2;
   parameter RX_LINES_WIDTH  = 13;

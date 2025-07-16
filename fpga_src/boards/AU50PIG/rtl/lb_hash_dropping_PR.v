@@ -28,16 +28,22 @@ THE SOFTWARE.
 `timescale 1ns / 1ps
 `default_nettype none
 
-module lb_PR #(
+module lb_hash_PR #(
   parameter IF_COUNT         = 2, // 2 equivalenebt to loadbalancer ports
   parameter PORT_COUNT       = 4,
-  parameter CORE_COUNT       = 8,
+  parameter CORE_COUNT       = 4,
   parameter SLOT_COUNT       = 32,
   parameter DATA_WIDTH       = 512,
-  parameter LOOPBACK_PORT    = 3,
+  parameter LOOPBACK_PORT    = 2, // 1 + 1 + 1 - 1
   parameter LOOPBACK_COUNT   = 1,
   parameter RX_LINES_WIDTH   = 13,
+  parameter PORT_WIDTH       = $clog2(PORT_COUNT),
+  parameter CORE_ID_WIDTH       = $clog2(CORE_COUNT),
+  parameter SLOT_WIDTH       = $clog2(SLOT_COUNT+1),
+  parameter TAG_WIDTH        = (SLOT_WIDTH>5)? SLOT_WIDTH:5,
+  parameter ID_TAG_WIDTH     = CORE_ID_WIDTH+TAG_WIDTH,
 
+   
   parameter STRB_WIDTH       = DATA_WIDTH/8
 ) (
   input  wire             clk,
@@ -60,15 +66,15 @@ module lb_PR #(
   // DATA lines to/from cores
   output wire [IF_COUNT*DATA_WIDTH-1:0] data_m_axis_tdata,
   output wire [IF_COUNT*STRB_WIDTH-1:0] data_m_axis_tkeep,
-  output wire [IF_COUNT*9-1:0]          data_m_axis_tdest,
-  output wire [IF_COUNT*3-1:0]          data_m_axis_tuser,
+  output wire [IF_COUNT*ID_TAG_WIDTH-1:0]          data_m_axis_tdest,
+  output wire [IF_COUNT*PORT_WIDTH-1:0]          data_m_axis_tuser,
   output wire [IF_COUNT-1:0]            data_m_axis_tvalid,
   input  wire [IF_COUNT-1:0]            data_m_axis_tready,
   output wire [IF_COUNT-1:0]            data_m_axis_tlast,
 
   input  wire [IF_COUNT*DATA_WIDTH-1:0] data_s_axis_tdata,
   input  wire [IF_COUNT*STRB_WIDTH-1:0] data_s_axis_tkeep,
-  input  wire [IF_COUNT*9-1:0]          data_s_axis_tuser,
+  input  wire [IF_COUNT*ID_TAG_WIDTH-1:0]          data_s_axis_tuser,
   input  wire [IF_COUNT-1:0]            data_s_axis_tvalid,
   output wire [IF_COUNT-1:0]            data_s_axis_tready,
   input  wire [IF_COUNT-1:0]            data_s_axis_tlast,
@@ -102,12 +108,7 @@ module lb_PR #(
   parameter RX_RLEN         = 1;
   parameter TX_RLEN         = 1;
 
-  parameter SLOT_WIDTH      = $clog2(SLOT_COUNT+1);
-  parameter CORE_ID_WIDTH   = $clog2(CORE_COUNT);
   parameter INTERFACE_WIDTH = $clog2(IF_COUNT);
-  parameter PORT_WIDTH      = $clog2(PORT_COUNT);
-  parameter TAG_WIDTH       = (SLOT_WIDTH>5) ? SLOT_WIDTH : 5;
-  parameter ID_TAG_WIDTH    = CORE_ID_WIDTH+TAG_WIDTH;
   parameter HASH_FIFO_DEPTH = DATA_FIFO_DEPTH/64;
 
   ///////////////////////////////////////////////////////////////////////////////
